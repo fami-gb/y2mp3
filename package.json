@@ -1,16 +1,21 @@
 {
   "name": "y2mp3",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "YouTube to MP3/MP4 converter with web interface",
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",
-    "fluent-ffmpeg": "^2.1.3"
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "multer": "^2.0.2"
   }
 }

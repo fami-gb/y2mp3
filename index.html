@@ -1,0 +1,358 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube ダウンローダー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .format-group {
+            margin-bottom: 30px;
+        }
+
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .format-option {
+            position: relative;
+        }
+
+        .format-option input[type="radio"] {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .format-option label {
+            display: block;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .format-option input[type="radio"]:checked + label {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .status.loading {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .progress {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .format-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 YouTube ダウンローダー</h1>
+        
+        <form id="downloadForm">
+            <div class="input-group">
+                <label for="url">YouTube URL</label>
+                <input 
+                    type="url" 
+                    id="url" 
+                    placeholder="https://www.youtube.com/watch?v=..." 
+                    required
+                >
+            </div>
+
+            <div class="format-group">
+                <label>保存形式</label>
+                <div class="format-options">
+                    <div class="format-option">
+                        <input type="radio" id="mp3" name="format" value="mp3" checked>
+                        <label for="mp3">MP3</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="wav" name="format" value="wav">
+                        <label for="wav">WAV</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="m4a" name="format" value="m4a">
+                        <label for="m4a">M4A</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="aac" name="format" value="aac">
+                        <label for="aac">AAC</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="mp4" name="format" value="mp4">
+                        <label for="mp4">MP4</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="download-btn" id="downloadBtn">
+                ダウンロード開始
+            </button>
+        </form>
+
+        <div class="status" id="status"></div>
+        
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const status = document.getElementById('status');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            status.style.display = 'none';
+        }
+
+        function showProgress() {
+            progress.style.display = 'block';
+        }
+
+        function hideProgress() {
+            progress.style.display = 'none';
+            progressFill.style.width = '0%';
+        }
+
+        function updateProgress(percent) {
+            progressFill.style.width = `${percent}%`;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value;
+            const format = document.querySelector('input[name="format"]:checked').value;
+            
+            if (!url) {
+                showStatus('URLを入力してください', 'error');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = '処理中...';
+            hideStatus();
+            showProgress();
+            
+            try {
+                showStatus('ダウンロードを開始しています...', 'loading');
+                
+                // プログレスバーのアニメーション
+                let progressValue = 0;
+                const progressInterval = setInterval(() => {
+                    progressValue += Math.random() * 20;
+                    if (progressValue > 90) {
+                        clearInterval(progressInterval);
+                        progressValue = 90;
+                    }
+                    updateProgress(progressValue);
+                }, 500);
+
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url, format })
+                });
+
+                clearInterval(progressInterval);
+                updateProgress(100);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showStatus(`✅ ダウンロード完了！ファイル: ${result.filename}`, 'success');
+                    
+                    // ダウンロードリンクを表示
+                    if (result.downloadUrl) {
+                        const link = document.createElement('a');
+                        link.href = result.downloadUrl;
+                        link.download = result.filename;
+                        link.click();
+                    }
+                } else {
+                    const error = await response.json();
+                    showStatus(`❌ エラー: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ エラーが発生しました: ${error.message}`, 'error');
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'ダウンロード開始';
+                setTimeout(() => {
+                    hideProgress();
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

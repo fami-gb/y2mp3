@@ -2,12 +2,16 @@
   "name": "y2mp3",
   "version": "1.0.0",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "build": "echo 'No build step required'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["youtube", "downloader", "mp3", "mp4", "converter"],
   "author": "",
   "license": "ISC",
   "description": "YouTube to MP3/MP4 converter with web interface",
